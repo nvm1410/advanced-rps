@@ -23,7 +23,7 @@ Smart contract: [RPS.sol](https://github.com/clesaege/RPS/blob/master/RPS.sol)
 You can play the free web version here:
 
 ```
-https://advanced-g95gcs237-nvms-projects.vercel.app/
+https://advanced-rps.vercel.app/
 ```
 
 Note that you must have Metamask extension installed in your browser.
@@ -38,11 +38,9 @@ Note that you must have Metamask extension installed in your browser.
    ```
 3. Run the app:
    ```
-   npm start
+   npm run dev
    ```
 
 ## Known Issues
 
-There are some issues when running locally on Ganache, specifically when trying to call RPS contract methods.
-
-
+When running locally on Ganache, make sure to disable auto-mining. This will make sure block time is updated correctly.

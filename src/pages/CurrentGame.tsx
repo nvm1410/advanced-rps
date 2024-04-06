@@ -41,7 +41,7 @@ function CurrentGame() {
     return a1.toLowerCase() === a2.toLowerCase();
   };
   const getCurrentGameMetadata = async () => {
-    if (!gameAddress) return;
+    if (!gameAddress || !playerAddress) return;
     if (window.ethereum == null) {
       toast.error("MetaMask not installed!");
       return;
@@ -62,7 +62,6 @@ function CurrentGame() {
 
   const checkPlayer2Move = async () => {
     if (!contractInstance) {
-      toast.error("Cannot find the current game");
       return 0;
     }
     try {
@@ -76,7 +75,6 @@ function CurrentGame() {
 
   const checkGameTimeout = async () => {
     if (!contractInstance) {
-      toast.error("Cannot find the current game");
       return false;
     }
     try {
@@ -96,7 +94,6 @@ function CurrentGame() {
 
   const checkGameResolved = async () => {
     if (!contractInstance) {
-      toast.error("Cannot find the current game");
       return false;
     }
     try {
@@ -122,6 +119,7 @@ function CurrentGame() {
     try {
       await contractInstance.j1Timeout();
     } catch (e: any) {
+      console.log(e);
       toast.error(e.message);
     }
   };
@@ -149,8 +147,6 @@ function CurrentGame() {
 
     try {
       const stake = await contractInstance.stake();
-      console.log("player 2 play", move2ndPlayerLocal, stake.toString());
-
       await contractInstance.play(move2ndPlayerLocal, {
         value: stake.toString(),
       });
@@ -283,7 +279,7 @@ function CurrentGame() {
                 id="move-select"
                 fullWidth
                 label="Your move"
-                value={move1stPlayer}
+                value={move1stPlayer ?? ""}
                 disabled={isLoading}
                 onChange={(e) => setMove1stPlayer(Number(e.target.value))}
               >
@@ -359,7 +355,7 @@ function CurrentGame() {
               id="move-select"
               fullWidth
               label="Your move"
-              value={move2ndPlayerLocal}
+              value={move2ndPlayerLocal ?? ""}
               onChange={(e) => setMove2ndPlayerLocal(Number(e.target.value))}
             >
               {Object.entries(Move)
@@ -405,7 +401,7 @@ function CurrentGame() {
 
   useEffect(() => {
     getCurrentGameMetadata();
-  }, [gameAddress]);
+  }, [gameAddress, playerAddress]);
 
   useEffect(() => {
     const interval = setInterval(async () => {

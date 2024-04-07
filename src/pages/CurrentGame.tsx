@@ -43,11 +43,13 @@ function CurrentGame() {
     return a1.toLowerCase() === a2.toLowerCase();
   };
   const getCurrentGameMetadata = async () => {
-    if (!gameAddress || !playerAddress) return;
+    if (!gameAddress || !playerAddress || !ethers.isAddress(gameAddress))
+      return;
     if (window.ethereum == null) {
       toast.error("MetaMask not installed!");
       return;
     }
+
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -468,6 +470,16 @@ function CurrentGame() {
   const isEligible =
     compareAddress(playerAddress, player1Address) ||
     compareAddress(playerAddress, player2Address);
+  if (gameAddress && !ethers.isAddress(gameAddress)) {
+    return (
+      <Grid item xs={12}>
+        <Typography>
+          Invalid game address:{" "}
+          <span style={{ color: "red" }}>{gameAddress}</span>
+        </Typography>
+      </Grid>
+    );
+  }
   return (
     <>
       <Grid item xs={12}>

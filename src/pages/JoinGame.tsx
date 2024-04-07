@@ -1,7 +1,9 @@
 import { useAccount } from "@metamask/sdk-react-ui";
 import { Button, Grid, TextField, Typography } from "@mui/material";
+import { ethers } from "ethers";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function JoinGame() {
   const [gameAddress, setGameAddress] = useState("");
@@ -30,7 +32,13 @@ function JoinGame() {
           fullWidth
           variant="contained"
           disabled={!gameAddress}
-          onClick={() => navigate(`/games/${gameAddress}`)}
+          onClick={() => {
+            if (!ethers.isAddress(gameAddress)) {
+              toast.error("Invalid Address!");
+              return;
+            }
+            navigate(`/games/${gameAddress}`);
+          }}
         >
           Join Game
         </Button>

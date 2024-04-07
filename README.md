@@ -27,6 +27,7 @@ https://advanced-rps.vercel.app/
 ```
 
 Note that you must have Metamask extension installed in your browser.
+Connect to Sepolia Ethereum Testnet and deploy some Sepolia ETH to start playing.
 
 ## Run Locally
 
@@ -44,3 +45,4 @@ Note that you must have Metamask extension installed in your browser.
 ## Known Issues
 
 When running locally on Ganache, make sure to disable auto-mining. This will make sure block time is updated correctly.
+

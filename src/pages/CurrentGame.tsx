@@ -16,6 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import RPS from "../contracts/RPS.json";
 import { Move } from "../utils/constants";
+import { parseErrorMessage } from "../utils/utils";
 
 const INTERVAL = 1000;
 const TIMEOUT = 5; // minutes
@@ -36,6 +37,7 @@ function CurrentGame() {
   const [isResolved, setResolved] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [timeoutTime, setTimeoutTime] = useState<number>();
+  const [isWithdrawLoading, setWithdrawLoading] = useState(false);
   const compareAddress = (a1: string, a2: string) => {
     if (!a1 || !a2) return false;
     return a1.toLowerCase() === a2.toLowerCase();
@@ -56,7 +58,8 @@ function CurrentGame() {
       setPlayer1Address(player1Address);
       setPlayer2Address(player2Address);
     } catch (e: any) {
-      toast.error(e.message);
+      const message = parseErrorMessage(e);
+      toast.error(message);
     }
   };
 
@@ -68,7 +71,8 @@ function CurrentGame() {
       const move2ndPlayer = await contractInstance.c2();
       return Number(move2ndPlayer);
     } catch (e: any) {
-      toast.error(e.message);
+      const message = parseErrorMessage(e);
+      toast.error(message);
       return 0;
     }
   };
@@ -87,7 +91,8 @@ function CurrentGame() {
         return true;
       }
     } catch (e: any) {
-      toast.error(e.message);
+      const message = parseErrorMessage(e);
+      toast.error(message);
     }
     return false;
   };
@@ -100,7 +105,8 @@ function CurrentGame() {
       const stake = await contractInstance.stake();
       return Number(stake) === 0;
     } catch (e: any) {
-      toast.error(e.message);
+      const message = parseErrorMessage(e);
+      toast.error(message);
       return false;
     }
   };
@@ -108,19 +114,24 @@ function CurrentGame() {
   const player1Withdraw = async () => {
     if (!contractInstance) return;
     try {
+      setWithdrawLoading(true);
       await contractInstance.j2Timeout();
     } catch (e: any) {
-      toast.error(e.message);
+      setWithdrawLoading(false);
+      const message = parseErrorMessage(e);
+      toast.error(message);
     }
   };
 
   const player2Withdraw = async () => {
     if (!contractInstance) return;
     try {
+      setWithdrawLoading(true);
       await contractInstance.j1Timeout();
     } catch (e: any) {
-      console.log(e);
-      toast.error(e.message);
+      setWithdrawLoading(false);
+      const message = parseErrorMessage(e);
+      toast.error(message);
     }
   };
 
@@ -134,7 +145,12 @@ function CurrentGame() {
       await contractInstance.solve(move1stPlayer, generatedSalt);
     } catch (e: any) {
       setLoading(false);
-      toast.error("You have inputted the wrong move or salt");
+      if (["CALL_EXCEPTION", "INVALID_ARGUMENT"].includes(e.code)) {
+        toast.error("You have inputted the wrong move or salt");
+        return;
+      }
+      const message = parseErrorMessage(e);
+      toast.error(message);
     }
   };
 
@@ -153,7 +169,8 @@ function CurrentGame() {
       const move2ndPlayer = await contractInstance.c2();
       setMove2ndPlayer(move2ndPlayer);
     } catch (e: any) {
-      toast.error(e.message);
+      const message = parseErrorMessage(e);
+      toast.error(message);
       setLoading(false);
     }
   };
@@ -209,7 +226,7 @@ function CurrentGame() {
             <Grid item xs={12}>
               <Button
                 variant="outlined"
-                disabled={!gameTimeout}
+                disabled={!gameTimeout || isWithdrawLoading}
                 onClick={player1Withdraw}
               >
                 Take your fund back
@@ -248,7 +265,7 @@ function CurrentGame() {
         <Grid item xs={12}>
           <Button
             variant="outlined"
-            disabled={!gameTimeout || !move2ndPlayer}
+            disabled={!gameTimeout || !move2ndPlayer || isWithdrawLoading}
             onClick={player2Withdraw}
           >
             Take your fund back
@@ -357,6 +374,7 @@ function CurrentGame() {
               label="Your move"
               value={move2ndPlayerLocal ?? ""}
               onChange={(e) => setMove2ndPlayerLocal(Number(e.target.value))}
+              disabled={isLoading}
             >
               {Object.entries(Move)
                 .slice(7)

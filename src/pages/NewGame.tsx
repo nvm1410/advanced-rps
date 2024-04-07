@@ -20,7 +20,7 @@ import * as Yup from "yup";
 import Hasher from "../contracts/Hasher.json";
 import RPS from "../contracts/RPS.json";
 import { Move } from "../utils/constants";
-import { generateSalt } from "../utils/utils";
+import { generateSalt, parseErrorMessage } from "../utils/utils";
 
 interface NewGameForm {
   amountToStake: string;
@@ -95,7 +95,8 @@ function NewGame() {
 
       setShowDialog(true);
     } catch (e: any) {
-      toast.error(e.message);
+      const message = parseErrorMessage(e);
+      toast.error(message);
     }
     setLoadingProgress("");
   };

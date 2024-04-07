@@ -49,6 +49,10 @@ function NewGame() {
       toast.error("MetaMask not installed!");
       return;
     }
+    if (!ethers.isAddress(address2ndPlayer)) {
+      toast.error("Invalid Address!");
+      return;
+    }
     try {
       setLoadingProgress("Getting signer");
       const provider = new ethers.BrowserProvider(window.ethereum);
